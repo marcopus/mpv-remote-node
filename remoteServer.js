@@ -15,8 +15,10 @@ const portfinder = require("portfinder");
 
 const WIN_SHUTDOWN_COMMAND = "shutdown /s /t 1";
 const WIN_REBOOT_COMMAND = "shutdown /r /t 1";
+const WIN_SUSPEND_COMMAND = "shutdown /h /f";
 const UNIX_SHUTDOWN_COMMAND = "/usr/sbin/shutdown now";
 const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
+const UNIX_SUSPEND_COMMAND = "test $(ps -p 1 -o comm=) = systemd && systemctl suspend";
 
 const { initDB } = require("./crud");
 
@@ -508,6 +510,10 @@ async function shutdownAction(action) {
     case "reboot":
       await mpv.stop();
       exec(os.platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND);
+      break;
+    case "standby":
+      await mpv.stop();
+      exec(os.platform != "win32" ? WIN_SUSPEND_COMMAND : UNIX_SUSPEND_COMMAND);
       break;
     case "quit":
       await mpv.stop();
